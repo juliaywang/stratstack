@@ -236,3 +236,13 @@ h1,h2,h3,p{margin:0}button,input,select,textarea{font:inherit}button{cursor:poin
 @media(max-width:1100px){.tiereditor{grid-template-columns:repeat(3,minmax(0,1fr))}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:780px){.builder-controls{grid-template-columns:1fr 1fr}.builder-controls>.action{grid-column:1/-1}.comp-agents{grid-template-columns:repeat(5,minmax(0,1fr))}.tiereditor{grid-template-columns:repeat(2,minmax(0,1fr))}.footer{flex-direction:column;gap:.5rem}.demo-notice{font-size:.6rem}}
 @media(max-width:520px){.builder-controls{grid-template-columns:1fr}.comp-agents{grid-template-columns:repeat(2,minmax(0,1fr))}.comp-agent{display:flex}.comp-agent .agent-avatar{width:2.55rem;height:2.55rem;margin-bottom:0}.grid{grid-template-columns:1fr}.actions{flex-wrap:wrap}.actions .action{padding:0 .65rem;font-size:.6rem}.meta-row{grid-template-columns:1.2rem 2.6rem 1fr 2.5rem}.meta-row .trend{display:none}.tiereditor{grid-template-columns:1fr 1fr;gap:1rem .5rem}.tiereditor .agent-avatar{display:none}.comp-top{gap:.6rem}.ai-badge{white-space:nowrap}.header-actions .action-default{display:inline-flex}.header-actions .action{font-size:.6rem;padding:0 .7rem}.sidebar-mobile-close .action{color:white}.panel-footer{gap:.4rem}.lineup-player{min-width:calc(50% - .7rem)}.map-name{font-size:2.6rem}}
+/* Account-backed rankings and model controls. */
+.model-warning{font-size:12px;line-height:1.5;color:#846127;margin:8px 0;padding:8px 10px;background:#fff6df;border-radius:6px}
+.toggle-setting{display:flex;align-items:center;gap:10px;font-size:13px;padding:12px 0}
+.toggle-setting input,.patch-rule input[type=checkbox]{width:auto}
+.patch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:20px}
+.patch-rule{padding:15px;border:1px solid var(--border,#e5e7eb);border-radius:9px;display:grid;gap:10px}
+.patch-rule label{font-size:12px;display:block}
+.patch-rule input[type=number]{width:100%;margin-top:5px}
+.patch-changes{margin-top:20px;line-height:1.7;font-size:13px}
+.new-agent{display:grid!important;place-items:center;width:100%;height:100%;min-height:40px;background:#26364e;color:#f2a09b;font-weight:700;letter-spacing:2px}
