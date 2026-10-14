@@ -1,0 +1,394 @@
+[
+  {
+    "team": "BBL Esports",
+    "map": "Haven",
+    "agents": [
+      "Sova",
+      "Omen",
+      "Neon",
+      "Cypher",
+      "Phoenix"
+    ],
+    "sample": 1,
+    "date": "2026-10-12",
+    "source": "https://www.vlr.gg/762036/bbl-esports-vs-misa-esports-monsters-reloaded-2026-closed-qualifier-playoffs-lbf"
+  },
+  {
+    "team": "Misa Esports",
+    "map": "Haven",
+    "agents": [
+      "Sova",
+      "Omen",
+      "Phoenix",
+      "Cypher",
+      "Neon"
+    ],
+    "sample": 1,
+    "date": "2026-10-12",
+    "source": "https://www.vlr.gg/762036/bbl-esports-vs-misa-esports-monsters-reloaded-2026-closed-qualifier-playoffs-lbf"
+  },
+  {
+    "team": "BBL Esports",
+    "map": "Split",
+    "agents": [
+      "Neon",
+      "Raze",
+      "Fade",
+      "Viper",
+      "Omen"
+    ],
+    "sample": 1,
+    "date": "2026-10-12",
+    "source": "https://www.vlr.gg/762036/bbl-esports-vs-misa-esports-monsters-reloaded-2026-closed-qualifier-playoffs-lbf"
+  },
+  {
+    "team": "Misa Esports",
+    "map": "Split",
+    "agents": [
+      "Waylay",
+      "Neon",
+      "Skye",
+      "Viper",
+      "Omen"
+    ],
+    "sample": 1,
+    "date": "2026-10-12",
+    "source": "https://www.vlr.gg/762036/bbl-esports-vs-misa-esports-monsters-reloaded-2026-closed-qualifier-playoffs-lbf"
+  },
+  {
+    "team": "G2 Esports",
+    "map": "Abyss",
+    "agents": [
+      "Neon",
+      "Harbor",
+      "Sova",
+      "Waylay",
+      "Astra"
+    ],
+    "sample": 1,
+    "date": "2026-10-11",
+    "source": "https://www.vlr.gg/754741/g2-esports-vs-t1-valorant-champions-2026-lr2"
+  },
+  {
+    "team": "T1",
+    "map": "Abyss",
+    "agents": [
+      "Sova",
+      "Yoru",
+      "Omen",
+      "Waylay",
+      "Harbor"
+    ],
+    "sample": 1,
+    "date": "2026-10-11",
+    "source": "https://www.vlr.gg/754741/g2-esports-vs-t1-valorant-champions-2026-lr2"
+  },
+  {
+    "team": "G2 Esports",
+    "map": "Ascent",
+    "agents": [
+      "Vyse",
+      "Chamber",
+      "Omen",
+      "Sova",
+      "Neon"
+    ],
+    "sample": 1,
+    "date": "2026-10-11",
+    "source": "https://www.vlr.gg/754741/g2-esports-vs-t1-valorant-champions-2026-lr2"
+  },
+  {
+    "team": "T1",
+    "map": "Ascent",
+    "agents": [
+      "Chamber",
+      "Sage",
+      "Sova",
+      "Omen",
+      "Neon"
+    ],
+    "sample": 1,
+    "date": "2026-10-11",
+    "source": "https://www.vlr.gg/754741/g2-esports-vs-t1-valorant-champions-2026-lr2"
+  },
+  {
+    "team": "NRG",
+    "map": "Haven",
+    "agents": [
+      "Sova",
+      "Phoenix",
+      "Omen",
+      "Chamber",
+      "Neon"
+    ],
+    "sample": 1,
+    "date": "2026-10-11",
+    "source": "https://www.vlr.gg/754740/nrg-vs-100-thieves-valorant-champions-2026-lr2"
+  },
+  {
+    "team": "100 Thieves",
+    "map": "Haven",
+    "agents": [
+      "Phoenix",
+      "Neon",
+      "Omen",
+      "Cypher",
+      "Sova"
+    ],
+    "sample": 1,
+    "date": "2026-10-11",
+    "source": "https://www.vlr.gg/754740/nrg-vs-100-thieves-valorant-champions-2026-lr2"
+  },
+  {
+    "team": "G2 Esports",
+    "map": "Split",
+    "agents": [
+      "Omen",
+      "Skye",
+      "Chamber",
+      "Viper",
+      "Neon"
+    ],
+    "sample": 1,
+    "date": "2026-10-10",
+    "source": "https://www.vlr.gg/754734/g2-esports-vs-team-vitality-valorant-champions-2026-ubsf"
+  },
+  {
+    "team": "Team Vitality",
+    "map": "Split",
+    "agents": [
+      "Yoru",
+      "Neon",
+      "Omen",
+      "Fade",
+      "Viper"
+    ],
+    "sample": 1,
+    "date": "2026-10-10",
+    "source": "https://www.vlr.gg/754734/g2-esports-vs-team-vitality-valorant-champions-2026-ubsf"
+  },
+  {
+    "team": "NRG",
+    "map": "Sunset",
+    "agents": [
+      "Chamber",
+      "Omen",
+      "KAY/O",
+      "Fade",
+      "Neon"
+    ],
+    "sample": 1,
+    "date": "2026-10-10",
+    "source": "https://www.vlr.gg/754735/nrg-vs-loud-valorant-champions-2026-ubsf"
+  },
+  {
+    "team": "LOUD",
+    "map": "Sunset",
+    "agents": [
+      "Chamber",
+      "Sage",
+      "Sova",
+      "Neon",
+      "Omen"
+    ],
+    "sample": 1,
+    "date": "2026-10-10",
+    "source": "https://www.vlr.gg/754735/nrg-vs-loud-valorant-champions-2026-ubsf"
+  },
+  {
+    "team": "NRG",
+    "map": "Summit",
+    "agents": [
+      "Cypher",
+      "Neon",
+      "KAY/O",
+      "Brimstone",
+      "Sova"
+    ],
+    "sample": 1,
+    "date": "2026-10-10",
+    "source": "https://www.vlr.gg/754735/nrg-vs-loud-valorant-champions-2026-ubsf"
+  },
+  {
+    "team": "LOUD",
+    "map": "Summit",
+    "agents": [
+      "Sage",
+      "Fade",
+      "Chamber",
+      "Neon",
+      "Omen"
+    ],
+    "sample": 1,
+    "date": "2026-10-10",
+    "source": "https://www.vlr.gg/754735/nrg-vs-loud-valorant-champions-2026-ubsf"
+  },
+  {
+    "team": "100 Thieves",
+    "map": "Sunset",
+    "agents": [
+      "Chamber",
+      "Omen",
+      "Phoenix",
+      "Neon",
+      "Fade"
+    ],
+    "sample": 1,
+    "date": "2026-10-09",
+    "source": "https://www.vlr.gg/754738/100-thieves-vs-nongshim-redforce-valorant-champions-2026-lr1"
+  },
+  {
+    "team": "Nongshim RedForce",
+    "map": "Sunset",
+    "agents": [
+      "Omen",
+      "Yoru",
+      "Fade",
+      "Neon",
+      "Cypher"
+    ],
+    "sample": 1,
+    "date": "2026-10-09",
+    "source": "https://www.vlr.gg/754738/100-thieves-vs-nongshim-redforce-valorant-champions-2026-lr1"
+  },
+  {
+    "team": "100 Thieves",
+    "map": "Ascent",
+    "agents": [
+      "Cypher",
+      "Phoenix",
+      "Omen",
+      "Jett",
+      "Sova"
+    ],
+    "sample": 1,
+    "date": "2026-10-09",
+    "source": "https://www.vlr.gg/754738/100-thieves-vs-nongshim-redforce-valorant-champions-2026-lr1"
+  },
+  {
+    "team": "Nongshim RedForce",
+    "map": "Ascent",
+    "agents": [
+      "Chamber",
+      "Sova",
+      "Sage",
+      "Omen",
+      "Neon"
+    ],
+    "sample": 1,
+    "date": "2026-10-09",
+    "source": "https://www.vlr.gg/754738/100-thieves-vs-nongshim-redforce-valorant-champions-2026-lr1"
+  },
+  {
+    "team": "T1",
+    "map": "Ascent",
+    "agents": [
+      "Chamber",
+      "Sova",
+      "Omen",
+      "Sage",
+      "Neon"
+    ],
+    "sample": 1,
+    "date": "2026-10-09",
+    "source": "https://www.vlr.gg/754739/t1-vs-paper-rex-valorant-champions-2026-lr1"
+  },
+  {
+    "team": "Paper Rex",
+    "map": "Ascent",
+    "agents": [
+      "Sova",
+      "Omen",
+      "Yoru",
+      "Sage",
+      "Chamber"
+    ],
+    "sample": 1,
+    "date": "2026-10-09",
+    "source": "https://www.vlr.gg/754739/t1-vs-paper-rex-valorant-champions-2026-lr1"
+  },
+  {
+    "team": "T1",
+    "map": "Summit",
+    "agents": [
+      "Fade",
+      "Sage",
+      "Neon",
+      "Omen",
+      "Chamber"
+    ],
+    "sample": 1,
+    "date": "2026-10-09",
+    "source": "https://www.vlr.gg/754739/t1-vs-paper-rex-valorant-champions-2026-lr1"
+  },
+  {
+    "team": "Paper Rex",
+    "map": "Summit",
+    "agents": [
+      "Sage",
+      "Viper",
+      "Omen",
+      "Neon",
+      "Fade"
+    ],
+    "sample": 1,
+    "date": "2026-10-09",
+    "source": "https://www.vlr.gg/754739/t1-vs-paper-rex-valorant-champions-2026-lr1"
+  },
+  {
+    "team": "Team Vitality",
+    "map": "Abyss",
+    "agents": [
+      "Harbor",
+      "Sova",
+      "Astra",
+      "Jett",
+      "Yoru"
+    ],
+    "sample": 1,
+    "date": "2026-10-08",
+    "source": "https://www.vlr.gg/754731/team-vitality-vs-nongshim-redforce-valorant-champions-2026-ubqf"
+  },
+  {
+    "team": "Nongshim RedForce",
+    "map": "Abyss",
+    "agents": [
+      "Sova",
+      "Omen",
+      "Yoru",
+      "Harbor",
+      "Neon"
+    ],
+    "sample": 1,
+    "date": "2026-10-08",
+    "source": "https://www.vlr.gg/754731/team-vitality-vs-nongshim-redforce-valorant-champions-2026-ubqf"
+  },
+  {
+    "team": "Team Vitality",
+    "map": "Haven",
+    "agents": [
+      "Sova",
+      "Astra",
+      "Chamber",
+      "Yoru",
+      "Neon"
+    ],
+    "sample": 1,
+    "date": "2026-10-08",
+    "source": "https://www.vlr.gg/754731/team-vitality-vs-nongshim-redforce-valorant-champions-2026-ubqf"
+  },
+  {
+    "team": "Nongshim RedForce",
+    "map": "Haven",
+    "agents": [
+      "Killjoy",
+      "Yoru",
+      "Neon",
+      "Sova",
+      "Omen"
+    ],
+    "sample": 1,
+    "date": "2026-10-08",
+    "source": "https://www.vlr.gg/754731/team-vitality-vs-nongshim-redforce-valorant-champions-2026-ubqf"
+  }
+]
