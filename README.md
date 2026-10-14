@@ -1,10 +1,11 @@
 # Stratstack
 
-A persistent Valorant team workspace built with Node.js 24, SQLite, and browser-native JavaScript. No dependency installation is required.
+A persistent Valorant team workspace built with Node.js 24, SQLite, and browser-native JavaScript. Install dependencies with `npm ci`.
 
 The UI is adapted from the supplied `Esports Team Tier List App.zip`: navy navigation, coral accents, light dashboard, agent comfort rows, professional-signal cards, and the Lotus composition panel. Its agent/map assets and styles are integrated into the existing browser-native frontend; the uploaded Figma deployment scripts are not used. Overview metrics are computed from stored roster preferences and source-linked records. Fonts are served locally.
 
 ```sh
+npm ci
 npm start
 # http://localhost:3000
 npm run check
@@ -25,4 +26,17 @@ A source-linked VLR snapshot contains 28 team-map observations from October 8–
 
 Agent tier uploads are objects such as `{"Jett":4,"Omen":3}`. Values run from 0 (unrated) through 4 (signature). Imports replace that player's ratings. Pro record imports append observations; avoid duplicate imports. Agent thumbnails are sourced from VLR and belong to Riot Games. Supported agents and maps live in `engine.mjs` and should be maintained as the game changes.
 
-Deployment: this workspace did not include the Sites starter/publishing helpers. The app is a standalone Node server and has not been registered or published as a Site. Use a Node 24 host with persistent disk, or port its HTTP/database layer to the supported Sites Worker/D1 starter once those helpers are available.
+## Vercel deployment
+
+The repository includes `vercel.json`, a static build in `dist/`, and a Node API function at `api/index.mjs`. Connect the repository with the project root set to the repository root, Framework Preset **Other**, and Node.js **24.x**. The repository sets the build command (`npm run build`) and output directory (`dist`). Remove any conflicting Vercel dashboard overrides. Pushes to `main` trigger deployment when Git integration is enabled.
+
+Without a database, the deployed app opens in clearly labeled demo mode: map recommendations, agent ratings, and the professional snapshot are available, but sign-in and team saves are disabled. Vercel's local filesystem is not persistent; the app never writes account data there.
+
+To enable persistent accounts and shared teams, connect a Turso/libSQL database and set these in **Vercel → Project Settings → Environment Variables** for Production (and Preview if needed):
+
+- `TURSO_DATABASE_URL`: the database's `libsql://...` URL.
+- `TURSO_AUTH_TOKEN`: its database authentication token, stored as a sensitive environment variable.
+
+Redeploy after setting the variables. Tables are created on the first API request. No credentials belong in Git or browser code. Local `npm start` continues to use `data/app.sqlite` unless a Turso URL is configured. Existing local accounts are not copied automatically into a new remote database.
+
+Validation covers both SQLite and the libSQL adapter, plus the Vercel API's demo-mode behavior and static build output. The live Vercel URL could not be fetched from the author's environment because its outbound network policy blocks that domain.
