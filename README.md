@@ -1,42 +1,63 @@
 # Stratstack
 
-A persistent Valorant team workspace built with Node.js 24, SQLite, and browser-native JavaScript. Install dependencies with `npm ci`.
+A Valorant roster workspace with Supabase accounts, personal agent rankings, captain-managed teams, and map-specific composition optimization. The existing navy/coral dashboard and local Riot agent artwork are preserved.
 
-The UI is adapted from the supplied `Esports Team Tier List App.zip`: navy navigation, coral accents, light dashboard, agent comfort rows, professional-signal cards, and the Lotus composition panel. Its agent/map assets and styles are integrated into the existing browser-native frontend; the uploaded Figma deployment scripts are not used. Overview metrics are computed from stored roster preferences and source-linked records. Fonts are served locally.
+## Run
+
+Node.js 24:
 
 ```sh
 npm ci
 npm start
-# http://localhost:3000
-npm run check
 npm test
+npm run check
 ```
 
-Accounts use salted scrypt passwords and HTTP-only sessions. Captains create teams, manage starter/sub profiles, edit ratings, and import observed professional compositions. Teammates join through the team's join code and edit their own ratings. All authenticated team members can save recommended lineups. Multiple teams per user are supported. A captain-created roster profile is separate from a joined account; create profiles for unregistered players only.
+The default backend is the connected StratStack Supabase project. Its URL and **publishable** key are in `supabase-config.mjs`; these identifiers are not secrets. Optional overrides are documented in `.env.example`. No service-role key is needed. Production sessions use Secure, HTTP-only cookies. Access tokens are verified by Supabase, and refresh tokens rotate through Supabase Auth.
 
-The demo roster is temporary; registered accounts, team membership, agent preferences, imported records, and saved lineups persist in `data/app.sqlite`. Back up that directory. `DATA_DIR` and `PORT` are optional environment variables. Production requires an HTTPS reverse proxy and `NODE_ENV=production` to enable Secure cookies. This local version has no password recovery or email verification.
+## Player and captain workflow
 
-The engine considers all 120 player assignments for each five-agent composition, maximizes comfort (0–4 per player), and ranks the resulting fits using comfort weighting plus the composition's share of snapshot and imported samples for the selected map. Unrated agents score zero. Scores are not win probabilities. Substitutes can be selected in any five-player lineup.
+1. Create an account, confirm the email, and sign in. If the confirmation email contains a code, the confirmation dialog accepts it. Otherwise follow its link and return to sign in.
+2. Save personal 0–4 agent comfort ratings under **My agent rankings**.
+3. Create a team in Settings. The creator is its captain.
+4. Add all five players and any substitutes under **Team roster**. Teammates do not need accounts. Optionally copy your personal ratings into a player profile.
+5. Enter each player's agent ratings under **Tier lists**.
+6. Select five players and a map under **Compositions**. Generate the best three distinct compositions; save the best to the playbook.
+7. Review **Patch & rules** to exclude agents, adjust balance weights, or relax four-role coverage. Rated-only mode disallows unrated picks.
 
-A source-linked VLR snapshot contains 28 team-map observations from October 8–12, 2026. This is a limited sample, not the full professional meta. Run `python scripts/refresh-pro-data.py` with network access, validate its output, and restart the server to refresh the snapshot. No automatic professional feed is connected. Illustrative templates are explicitly labeled and receive zero evidence credit. Import real observations under Pro insights as a JSON array:
+Each captain owns an isolated workspace. There is no team-join flow in Supabase mode. Personal ratings are private to their account; copying them into a roster creates an independent snapshot. Saved lineups retain their selected map, patch, score breakdown, roster assignment, and model settings.
 
-```json
-[{"team":"Team name","map":"Ascent","agents":["Jett","Sova","KAY/O","Omen","Killjoy"],"sample":1,"date":"2026-10-01","source":"https://www.vlr.gg/your-match-id"}]
-```
+## Database
 
-Agent tier uploads are objects such as `{"Jett":4,"Omen":3}`. Values run from 0 (unrated) through 4 (signature). Imports replace that player's ratings. Pro record imports append observations; avoid duplicate imports. Agent thumbnails are sourced from VLR and belong to Riot Games. Supported agents and maps live in `engine.mjs` and should be maintained as the game changes.
+`supabase/schema.sql` is the reviewed source of the `captain_rosters` migration, already applied to project `masdbfkksqkpftinxgqn` via Supabase MCP. Do **not** apply it a second time to that project. A fresh project needs this schema and email/password Auth enabled. Configure Supabase Auth's Site URL to the final website URL for a smooth confirmation-link redirect. The application can also accept signup email codes without redirects. Default Supabase email delivery restrictions still apply; configure production SMTP in the Supabase dashboard when onboarding external users.
 
-## Vercel deployment
+All five tables have row-level security and authenticated-role grants. Personal ratings require `auth.uid() = user_id`; teams require `auth.uid() = owner`; child records require ownership of their parent team. No authorization uses editable user metadata. A transactional live-database test verified cross-captain reads, updates, inserts, owner transfers and personal-ranking writes are blocked; its fixtures were rolled back. Supabase security advisors reported no notices after the migration.
 
-The repository includes `vercel.json`, a static build in `dist/`, and a Node API function at `api/index.mjs`. Connect the repository with the project root set to the repository root, Framework Preset **Other**, and Node.js **24.x**. The repository sets the build command (`npm run build`) and output directory (`dist`). Remove any conflicting Vercel dashboard overrides. Pushes to `main` trigger deployment when Git integration is enabled.
+The old SQLite/Turso implementation remains available only with `DATA_BACKEND=legacy` for compatibility. Legacy accounts are not migrated into Supabase. Do not set this option in the production Vercel project.
 
-Without a database, the deployed app opens in clearly labeled demo mode: map recommendations, agent ratings, and the professional snapshot are available, but sign-in and team saves are disabled. Vercel's local filesystem is not persistent; the app never writes account data there.
+## Recommendation model
 
-To enable persistent accounts and shared teams, connect a Turso/libSQL database and set these in **Vercel → Project Settings → Environment Variables** for Production (and Preview if needed):
+The exact dynamic-programming search considers every available agent once and assigns five distinct agents to five distinct players. It keeps the top three distinct agent sets for each player/role state and requires Duelist, Initiator, Controller and Sentinel coverage by default. It is no longer limited to imported team compositions.
 
-- `TURSO_DATABASE_URL`: the database's `libsql://...` URL.
-- `TURSO_AUTH_TOKEN`: its database authentication token, stored as a sensitive environment variable.
+The score averages the five assigned players' agent scores. At the default setting:
 
-Redeploy after setting the variables. Tables are created on the first API request. No credentials belong in Git or browser code. Local `npm start` continues to use `data/app.sqlite` unless a Turso URL is configured. Existing local accounts are not copied automatically into a new remote database.
+- 70% player comfort (0–4 mapped to 0–100)
+- 15% editorial map suitability (unreviewed agent/map pairs default to 60)
+- 6% editorial patch adjustment (neutral 50, with bounded adjustments)
+- 9% agent appearance frequency in the selected map's professional sample
 
-Validation covers both SQLite and the libSQL adapter, plus the Vercel API's demo-mode behavior and static build output. The live Vercel URL could not be fetched from the author's environment because its outbound network policy blocks that domain.
+The comfort slider rescales the remaining weights in a 50:20:30 ratio. Empty professional datasets contribute zero evidence. Scores express model fit, **not** win probability or a claim of universally optimal play. Unrated assignments, missing evidence, pre-patch samples, unknown map suitability, and out-of-rotation maps produce explicit notices. Role coverage is a coarse model; ability combinations, lineups, opponent strategy and scrim results remain coaching inputs.
+
+`game-data.mjs` contains the manually reviewed **13.08** snapshot (October 13, 2026), official Riot source links, 29 agents including Miks and Veto, recent balance notes and known rotation changes. It does not claim that every map's rotation status is verified. The numerical effects of buffs/nerfs are editorial estimates. Captains may override them for their team; no automatic patch ingestion or schedule is enabled.
+
+`pro-data.json` retains the source-linked October 8–12, 2026 VLR snapshot (28 team-map observations). This is a limited, pre-13.08 sample. The Pro data screen supports imports with map, team, five unique agents, positive sample count, date, source URL, and optional `patch`. `scripts/refresh-pro-data.py` can refresh the snapshot manually. Review patch facts, agents, map scores and professional data before later-patch play.
+
+## Vercel
+
+Retains the existing `vercel.json`, `api/index.mjs` Node function and static `dist/` build. Framework preset: Other. Node: 24.x. Build: `npm run build`. Output: `dist`. The build copies the engine and versioned game inputs beside browser assets.
+
+The checked-in publishable project configuration enables Supabase mode without adding secrets to Vercel. Existing TURSO variables are ignored in default mode. Deploy this branch through the repository's Vercel integration after review.
+
+## Verification
+
+`npm test` covers legacy adapters, the new Supabase API contract using a simulated service, login confirmation, refresh rotation, captain checks, personal rankings, saved lineups, exclusions, patch effects, and optimizer correctness against an independent exhaustive search. Browser QA exercises the actual UI with a simulated authenticated API. Live Supabase RLS was verified separately. Full email delivery and live Auth HTTP calls could not be exercised from the authoring workspace because its network policy blocks the project's `supabase.co` endpoint.

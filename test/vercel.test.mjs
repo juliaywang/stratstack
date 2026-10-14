@@ -7,7 +7,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 test('Vercel API renders demo without writing a temporary database',async()=>{
  const directory=mkdtempSync(join(tmpdir(),'stratstack-vercel-'));
- const child=spawn(process.execPath,['--input-type=module','-e',"import http from 'node:http';import api from './api/index.mjs';const s=http.createServer(api).listen(0,'127.0.0.1',()=>console.log(s.address().port));"],{cwd:new URL('..',import.meta.url),env:{...process.env,VERCEL:'1',TURSO_DATABASE_URL:'',DATA_DIR:join(directory,'missing')},stdio:['ignore','pipe','pipe']});
+ const child=spawn(process.execPath,['--input-type=module','-e',"import http from 'node:http';import api from './api/index.mjs';const s=http.createServer(api).listen(0,'127.0.0.1',()=>console.log(s.address().port));"],{cwd:new URL('..',import.meta.url),env:{...process.env,DATA_BACKEND:'legacy',VERCEL:'1',TURSO_DATABASE_URL:'',DATA_DIR:join(directory,'missing')},stdio:['ignore','pipe','pipe']});
  try{
   const [output]=await Promise.race([once(child.stdout,'data'),once(child,'exit').then(()=>{throw Error('API failed to start')})]);
   const origin='http://127.0.0.1:'+String(output).trim();

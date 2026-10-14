@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.mjs",
     "test": "node --test",
-    "check": "node --check server.mjs && node --check public/app.js",
+    "check": "node --check server.mjs && node --check supabase-handler.mjs && node --check engine.mjs && node --check game-data.mjs && node --check public/app.js",
     "build": "node scripts/build.mjs",
     "pretest": "npm run build"
   },

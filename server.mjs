@@ -1,3 +1,5 @@
+import {usesSupabase} from './supabase-config.mjs';
+import {supabaseHandler} from './supabase-handler.mjs';
 import http from 'node:http';
 import {randomBytes,scryptSync,timingSafeEqual} from 'node:crypto';
 import {readFileSync} from 'node:fs';
@@ -14,9 +16,10 @@ function tiers(v){if(!v||typeof v!=='object'||Array.isArray(v))fail('Provide an 
 const snapshot=JSON.parse(readFileSync(root+'pro-data.json','utf8'));
 export async function handler(req,res){const url=new URL(req.url,'http://localhost');const send=(o,status=200)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(o));};
  try{
- if(!url.pathname.startsWith('/api/')){const files={'/':'index.html','/app.js':'app.js','/engine.js':'engine.js','/style.css':'style.css'};const f=files[url.pathname]||(/^\/(?:agents\/[a-z]+\.png|maps\/lotus\.jpg|fonts\/[a-z0-9-]+\.woff2)$/.test(url.pathname)?url.pathname.slice(1):null);if(!f){res.writeHead(404);return res.end('Not found');}res.writeHead(200,{'Content-Type':f.endsWith('woff2')?'font/woff2':f.endsWith('jpg')?'image/jpeg':f.endsWith('png')?'image/png':f.endsWith('html')?'text/html':f.endsWith('css')?'text/css':'text/javascript','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'"});return res.end(readFileSync(f==='engine.js'?root+'engine.mjs':root+'public/'+f));}
+ if(!url.pathname.startsWith('/api/')){const files={'/':'index.html','/app.js':'app.js','/engine.js':'engine.js','/game-data.mjs':'game-data.mjs','/style.css':'style.css'};const f=files[url.pathname]||(/^\/(?:agents\/[a-z]+\.png|maps\/lotus\.jpg|fonts\/[a-z0-9-]+\.woff2)$/.test(url.pathname)?url.pathname.slice(1):null);if(!f){res.writeHead(404);return res.end('Not found');}res.writeHead(200,{'Content-Type':f.endsWith('woff2')?'font/woff2':f.endsWith('jpg')?'image/jpeg':f.endsWith('png')?'image/png':f.endsWith('html')?'text/html':f.endsWith('css')?'text/css':'text/javascript','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'"});return res.end(readFileSync(f==='engine.js'?root+'engine.mjs':f==='game-data.mjs'?root+'game-data.mjs':root+'public/'+f));}
  if(req.method!=='GET'&&req.headers.origin&&new URL(req.headers.origin).host!==req.headers.host)fail('Invalid request origin.',403);
  let b={};if(req.method!=='GET'){let raw='';if(req.body!==undefined){raw=typeof req.body==='string'?req.body:Buffer.isBuffer(req.body)?req.body.toString():JSON.stringify(req.body);}else{for await(const c of req){raw+=c;if(raw.length>100000)fail('Upload is too large.',413);}}if(raw.length>100000)fail('Upload is too large.',413);try{b=JSON.parse(raw||'{}')}catch{fail('Invalid JSON.')}}
+ if(usesSupabase)return await supabaseHandler(req,res,url,b,send,snapshot);
  const db=await database();
  if(!db){if(url.pathname==='/api/state')return send({user:null,teams:[],team:null,agents,maps,examples,members:[],records:snapshot,saved:[],storageReady:false});fail('Team accounts and saves are unavailable until the site owner connects a database.',503);}
  const stmt=(s,...v)=>db.get(s,...v),all=(s,...v)=>db.all(s,...v),run=(s,...v)=>db.run(s,...v);
