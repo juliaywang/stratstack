@@ -37,17 +37,18 @@ The old SQLite/Turso implementation remains available only with `DATA_BACKEND=le
 
 ## Recommendation model
 
-The exact dynamic-programming search considers every available agent once and assigns five distinct agents to five distinct players. It keeps the top three distinct agent sets for each player/role state and requires Duelist, Initiator, Controller and Sentinel coverage by default. It is no longer limited to imported team compositions.
+The exact dynamic-programming search considers every available agent once and assigns five distinct agents to five distinct players. It keeps the top three distinct agent sets for each player/role state and requires Duelist, Initiator, Controller and Sentinel coverage plus a dedicated entry pick. It is no longer limited to imported team compositions.
 
 The score averages the five assigned players' agent scores. At the default setting:
 
 - 50% player comfort (0–4 mapped to 0–100)
-- 35% map-specific MetaBot ranked agent performance (sample-adjusted win-rate score)
+- 30% map-specific MetaBot ranked agent performance (sample-adjusted win-rate score)
+- 5% Valking patch-specific Platinum+ all-map agent performance (sample counts unpublished)
 - 5% editorial map suitability (unreviewed agent/map pairs default to 60)
 - 5% editorial patch adjustment (neutral 50, with bounded adjustments)
 - 5% agent appearance frequency in the selected map's professional sample
 
-The comfort slider rescales the remaining weights in a 70:10:10:10 ratio (ranked agents/map/patch/pro popularity). Empty professional datasets contribute zero evidence. Scores express model fit, **not** win probability or a claim of universally optimal play. Unrated assignments, missing evidence, pre-patch samples, unknown map suitability, and out-of-rotation maps produce explicit notices. Role coverage is a coarse model; ability combinations, lineups, opponent strategy and scrim results remain coaching inputs.
+The comfort slider rescales the remaining weights in a 60:10:10:10:10 ratio (MetaBot map agents/Valking all-map agents/map/patch/pro popularity). Empty professional datasets contribute zero evidence. Scores express model fit, **not** win probability or a claim of universally optimal play. Unrated assignments, missing evidence, pre-patch samples, unknown map suitability, and out-of-rotation maps produce explicit notices. Role coverage is a coarse model; ability combinations, lineups, opponent strategy and scrim results remain coaching inputs.
 
 `game-data.mjs` contains the manually reviewed **13.08** snapshot (October 13, 2026), official Riot source links, 29 agents including Miks and Veto, recent balance notes and known rotation changes. It does not claim that every map's rotation status is verified. The numerical effects of buffs/nerfs are editorial estimates. Captains may override them for their team; no automatic patch ingestion or schedule is enabled.
 
@@ -86,6 +87,12 @@ To refresh, obtain reviewed text exports of the source pages, then run `python3 
 
 `ranked-agent-data.mjs` contains 347 MetaBot map-agent rows across 12 maps, including every current rotation map, checked October 15, 2026. Rows retain the reported win rate, pick rate, sample size, source update and URL. Icebox was unavailable; Corrode lacks Miks. Missing rows use neutral 50, never inferred results. The public pages cover competitive play across all ranks, regions and platforms; their patch is unspecified.
 
-The ranked score is `clamp(50 + 5 × (winRate − 50) × matches / (matches + 500), 0, 100)`. This is a documented heuristic with a 500-match neutral prior, not a win-probability prediction. Pick rates are shown as context, not used to double-weight popularity. Default overall weights are comfort 50 / ranked agents 35 / editorial map 5 / patch 5 / VLR popularity 5. Source composition snapshots remain separate and do not force exact matches. ValoHub's older editorial estimates are not passed off as ranked agent results. vstats/THESPIKE have no imported usable tables, and Strats.gg remains a strategy resource.
+The ranked score is `clamp(50 + 5 × (winRate − 50) × matches / (matches + 500), 0, 100)`. This is a documented heuristic with a 500-match neutral prior, not a win-probability prediction. Pick rates are shown as context, not used to double-weight popularity. Default overall weights are comfort 50 / MetaBot map agents 30 / Valking all-map agents 5 / editorial map 5 / patch 5 / VLR popularity 5. Source composition snapshots remain separate and do not force exact matches. ValoHub's older editorial estimates are not passed off as ranked agent results. vstats/THESPIKE have no imported usable tables, and Strats.gg remains a strategy resource.
 
 Refresh reviewed map-page exports with `python3 scripts/import-agent-stats.py --input-dir /path/to/exports --checked YYYY-MM-DD --output ranked-agent-data.mjs` (files named `agents-Lotus.txt`, etc.). The importer reads only the overall table, excludes unknown IDs and attack/defense tables, and rejects incomplete or duplicate data. Inspect missing agents before committing. This remains a manual snapshot. Lineup details and Meta sources expose the inputs, and browser/server optimization use the same snapshot.
+
+### Entry balance and Valking signal
+
+Every generated lineup must include Jett, Raze, Neon or Waylay, plus Controller, Initiator and Sentinel coverage; the fifth slot is flexible. This is a conservative editorial entry classification, not a claim that other duelists cannot enter. The optimizer tracks entry coverage as an additional DP state so it can find the true best feasible lineups, rather than filtering only the top three afterward. Legacy `requireRoles:false` settings no longer disable balance. Observed-only lineups and source-comp roster fitting follow the same rule. Excluded/unrated entry pools produce no valid lineup instead of silently dropping entry coverage. Historical saved lineups remain snapshots.
+
+`valking-agent-data.mjs` records 29 Platinum+ all-map agent rows from https://valking.gg/en/agents, patch 13.08, checked October 15, 2026. This separate 5% default signal uses `clamp(50 + 2.5 × (winRate − 50), 0, 100)`; sample counts are unpublished and are never invented or pooled with MetaBot. Refresh by reviewing that source table and preserving the scope, patch and date. U.GG returned 403, Blitz could not be fetched, and vstats returned no readable rows; none is represented as an active feed. Existing VLR, MetaBot and ValoHub snapshots remain available with their original attribution and limitations.
