@@ -1,3 +1,4 @@
+import {rankedAgentSnapshot} from './ranked-agent-data.mjs';
 import {patch,mapFits} from './game-data.mjs';
 export const agents = {Jett:'Duelist',Raze:'Duelist',Neon:'Duelist',Reyna:'Duelist',Phoenix:'Duelist',Yoru:'Duelist',Iso:'Duelist',Waylay:'Duelist',Sova:'Initiator',Breach:'Initiator',Skye:'Initiator',Fade:'Initiator',Gekko:'Initiator','KAY/O':'Initiator',Tejo:'Initiator',Omen:'Controller',Viper:'Controller',Brimstone:'Controller',Astra:'Controller',Harbor:'Controller',Clove:'Controller',Killjoy:'Sentinel',Cypher:'Sentinel',Sage:'Sentinel',Chamber:'Sentinel',Deadlock:'Sentinel',Vyse:'Sentinel',Veto:'Sentinel',Miks:'Controller'};
 export const maps = ['Ascent','Haven','Bind','Lotus','Sunset','Split','Icebox','Breeze','Pearl','Fracture','Abyss','Corrode','Summit'];
@@ -24,6 +25,11 @@ export function compositionEvidence(picks,records,map){
  const source=r=>({team:r.team,map:r.map,agents:r.agents,date:r.date,source:r.source,event:r.event||'',sample:r.sample,shared:r.shared,patch:r.patch||null});
  const dates=observed.map(r=>r.date).filter(Boolean).sort();
  return {exactSamples:count(exact),mapSamples:count(observed),exactRate:count(observed)?Math.round(count(exact)/count(observed)*100):0,exactSources:exact.slice(0,5).map(source),similarSources:similar.slice(0,5).map(source),from:dates[0]||null,through:dates.at(-1)||null};
+}
+// Heuristic score, not win probability. A 500-match neutral prior reduces small-sample swings.
+export function rankedAgentScore(row){
+ if(!row||!Number.isFinite(row.matches)||row.matches<=0||!Number.isFinite(row.winRate)||row.winRate<0||row.winRate>100)return 50;
+ return Math.max(0,Math.min(100,50+5*(row.winRate-50)*row.matches/(row.matches+500)));
 }
 export function recommend(players, records, map, weight=50, options={}) {
  if(players.length!==5 || new Set(players.map(p=>p.id)).size!==5) throw new Error('Select exactly five different players.');
@@ -53,6 +59,7 @@ export function recommend(players, records, map, weight=50, options={}) {
  for(const agent of candidates){
   const role=1<<roles.indexOf(agents[agent]);
   const mapFit=mapFits[map]?.[agent]??60;
+  const rankedRow=rankedAgentSnapshot.maps[map]?.agents[agent],rankedFit=rankedAgentScore(rankedRow);
   const adjustment=Object.hasOwn(overrides,agent)?overrides[agent]:(changes[agent]||0);
   if(!Number.isFinite(adjustment)||adjustment < -50||adjustment > 50)throw new Error('Patch adjustments must be between -50 and 50.');
   const patchFit=50+adjustment,evidence=total?(frequency[agent]||0)/total*100:0;
@@ -62,8 +69,8 @@ export function recommend(players, records, map, weight=50, options={}) {
     const tier=players[i].tiers?.[agent]??0;
     if(!Number.isInteger(tier)||tier<0||tier>4)throw new Error('Invalid player rating.');
     if(options.ratedOnly&&tier===0)continue;
-    const value=tier/4*weight+(mapFit*.5+patchFit*.2+evidence*.3)*(100-weight)/100;
-    for(const path of paths){const assignment=[...path.assignment,{player:players[i].name,playerId:players[i].id,agent,tier,mapFit,patchFit,evidence}];
+    const value=tier/4*weight+(rankedFit*.7+mapFit*.1+patchFit*.1+evidence*.1)*(100-weight)/100;
+    for(const path of paths){const assignment=[...path.assignment,{player:players[i].name,playerId:players[i].id,agent,tier,mapFit,patchFit,evidence,rankedFit,rankedStats:rankedRow||null}];
      insert(next,((used|(1<<i))<<4)|(roleMask|role),{value:path.value+value,assignment,key:assignment.map(a=>a.agent).sort().join('|')});
     }
    }
@@ -77,6 +84,8 @@ export function recommend(players, records, map, weight=50, options={}) {
   const exactComfort=Math.round(assignment.reduce((s,a)=>s+a.tier,0)/20*100);
   const professional=compositionEvidence(assignment.map(a=>a.agent),observed,map);
   const warnings=[];
+  if(assignment.some(a=>!a.rankedStats))warnings.push('Missing map-specific ranked data for one or more picks; neutral ranked score used.');
+  if(assignment.some(a=>a.rankedStats&&a.rankedStats.matches<500))warnings.push('Some ranked agent samples have fewer than 500 matches; their influence is reduced.');
   if(assignment.some(a=>a.tier===0))warnings.push('Includes unrated agents. Rate more agents or enable rated-only picks.');
   if(!total)warnings.push('No professional observations for this map; evidence contributes zero.');
   if(patch.poolStatus[map]==='Out of rotation')warnings.push('This map is outside the verified competitive rotation; suitable for custom practice.');
@@ -84,6 +93,6 @@ export function recommend(players, records, map, weight=50, options={}) {
   if(map==='Corrode')warnings.push('Corrode changed in 13.08; validate lineups and retake timings in practice.');
   if(professional.through&&Date.parse(patch.verifiedAt)-Date.parse(professional.through)>90*86400000)warnings.push('Historical evidence only: the newest match for this map is over 90 days before this patch.');
   if(observed.some(r=>!r.patch||r.patch!==patch.id))warnings.push('Professional samples may predate this patch.');
-  return {map,team:'Optimized roster composition',agents:assignment.map(a=>a.agent),assignment,comfort:exactComfort,evidence:avg('evidence'),professional,mapFit:avg('mapFit'),patchFit:avg('patchFit'),score:Math.round(p.value/5),sample:total,example:false,generated:true,patch:patch.id,verifiedAt:patch.verifiedAt,source:professional.exactSources[0]?.source||professional.similarSources[0]?.source||null,patchSource:patch.source,date:patch.verifiedAt,warnings,roles:[...new Set(assignment.map(a=>agents[a.agent]))],weights:{comfort:weight,map:(100-weight)*.5,patch:(100-weight)*.2,evidence:(100-weight)*.3}};
+  return {map,team:'Optimized roster composition',agents:assignment.map(a=>a.agent),assignment,comfort:exactComfort,rankedFit:avg('rankedFit'),rankedSource:rankedAgentSnapshot.maps[map]?{source:rankedAgentSnapshot.maps[map].source,updated:rankedAgentSnapshot.maps[map].updated,scope:rankedAgentSnapshot.maps[map].scope,checkedAt:rankedAgentSnapshot.checkedAt}:null,evidence:avg('evidence'),professional,mapFit:avg('mapFit'),patchFit:avg('patchFit'),score:Math.round(p.value/5),sample:total,example:false,generated:true,patch:patch.id,verifiedAt:patch.verifiedAt,source:professional.exactSources[0]?.source||professional.similarSources[0]?.source||null,patchSource:patch.source,date:patch.verifiedAt,warnings,roles:[...new Set(assignment.map(a=>agents[a.agent]))],weights:{comfort:weight,ranked:(100-weight)*.7,map:(100-weight)*.1,patch:(100-weight)*.1,evidence:(100-weight)*.1}};
  });
 }

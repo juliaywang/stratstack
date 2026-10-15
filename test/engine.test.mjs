@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {recommend,examples,agents} from '../engine.mjs';
+import {rankedAgentSnapshot} from '../ranked-agent-data.mjs';
 import {patch,mapFits} from '../game-data.mjs';
 const players=examples[0].agents.map((a,i)=>({id:String(i),name:'Player '+i,tiers:{[a]:4}}));
 test('finds unique optimal assignments across all agents, independent of player order',()=>{
@@ -29,7 +30,7 @@ test('map selection, exclusions and patch overrides influence composition',()=>{
  const empty=players.map(p=>({...p,tiers:{}}));
  const bind=recommend(empty,[],'Bind',0)[0],ascent=recommend(empty,[],'Ascent',0)[0];assert.notDeepEqual(bind.agents,ascent.agents);
  assert.ok(!recommend(players,[],'Ascent',70,{excluded:['Jett']}).some(r=>r.agents.includes('Jett')));
- const changed=recommend(empty,[],'Summit',0,{adjustments:{Miks:50,Veto:50,Tejo:50,Waylay:50,Neon:50}})[0];
+ const changed=recommend(empty,[],'Icebox',0,{adjustments:{Miks:50,Veto:50,Tejo:50,Waylay:50,Neon:50}})[0];
  assert.ok(changed.agents.includes('Miks'));assert.ok(changed.agents.includes('Veto'));
 });
 test('top three global results match independent exhaustive enumeration',()=>{
@@ -38,7 +39,7 @@ test('top three global results match independent exhaustive enumeration',()=>{
  const excluded=Object.keys(agents).filter(a=>!available.includes(a));const best=new Map();
  function enumerate(chosen){
   if(chosen.length===5){if(new Set(chosen.map(a=>agents[a])).size!==4)return;
-   const score=chosen.reduce((n,a,i)=>n+p[i].tiers[a]/4*70+((mapFits.Ascent[a]??60)*.5+50*.2)*.3,0)/5;
+   const score=chosen.reduce((n,a,i)=>n+p[i].tiers[a]/4*70+((50+5*(rankedAgentSnapshot.maps.Ascent.agents[a].winRate-50)*rankedAgentSnapshot.maps.Ascent.agents[a].matches/(rankedAgentSnapshot.maps.Ascent.agents[a].matches+500))*.7+(mapFits.Ascent[a]??60)*.1+50*.1)*.3,0)/5;
    const key=[...chosen].sort().join('|');best.set(key,Math.max(best.get(key)??-Infinity,score));return;}
   for(const a of available)if(!chosen.includes(a))enumerate([...chosen,a]);
  }enumerate([]);
