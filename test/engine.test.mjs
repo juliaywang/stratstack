@@ -46,3 +46,22 @@ test('top three global results match independent exhaustive enumeration',()=>{
  const actual=recommend(p,[],'Ascent',70,{excluded});assert.deepEqual(actual.map(r=>r.score),expected);
  assert.equal(new Set(actual.map(r=>[...r.agents].sort().join('|'))).size,3);
 });
+
+test('exact composition evidence is separate from shared-agent evidence and deduplicated',async()=>{
+ const {compositionEvidence}=await import('../engine.mjs');
+ const picks=['Jett','Sova','KAY/O','Omen','Killjoy'];
+ const a={team:'Alpha',map:'Ascent',agents:picks,sample:1,date:'2026-10-12',source:'https://www.vlr.gg/1/match'};
+ const b={...a,team:'Bravo',agents:['Raze',...picks.slice(1)],source:'https://www.vlr.gg/2/match'};
+ const e=compositionEvidence(picks,[a,{...a,source:a.source+'/?game=5'},b,{...a,map:'Haven'}],'Ascent');
+ assert.equal(e.mapSamples,2);assert.equal(e.exactSamples,1);assert.equal(e.exactRate,50);
+ assert.equal(e.exactSources[0].team,'Alpha');assert.equal(e.similarSources[0].shared,4);
+ assert.equal(compositionEvidence(['Reyna','Neon','Iso','Yoru','Phoenix'],[a,b],'Ascent').exactSamples,0);
+});
+
+test('observed-only mode returns exclusively exact sourced compositions',()=>{
+ const record={...examples[0],example:false,team:'Pro team',source:'https://www.vlr.gg/123/match',sample:2,date:'2026-10-01'};
+ const results=recommend(players,[record], 'Ascent',70,{observedOnly:true});
+ assert.equal(results.length,1);assert.equal(results[0].professional.exactSamples,2);assert.ok(results[0].observedOnly);
+ assert.deepEqual(recommend(players,[record],'Bind',70,{observedOnly:true}),[]);
+ assert.deepEqual(recommend(players,[record],'Ascent',70,{observedOnly:true,excluded:['Jett']}),[]);
+});
