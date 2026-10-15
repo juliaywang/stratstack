@@ -5,4 +5,5 @@ rmSync(dist,{recursive:true,force:true});mkdirSync(dist,{recursive:true});
 cpSync(new URL('public/',root),dist,{recursive:true});
 cpSync(new URL('engine.mjs',root),new URL('engine.js',dist));
 cpSync(new URL('game-data.mjs',root),new URL('game-data.mjs',dist));
+cpSync(new URL('meta-data.mjs',root),new URL('meta-data.mjs',dist));
 console.log('Built static frontend in dist/');
