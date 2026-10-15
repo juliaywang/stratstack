@@ -256,3 +256,12 @@ h1,h2,h3,p{margin:0}button,input,select,textarea{font:inherit}button{cursor:poin
 .coverage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin:16px 0 24px}
 .coverage-grid button{display:grid;gap:8px;text-align:left;padding:12px}
 .coverage-grid strong{font-size:23px}.coverage-grid small{font-size:10px;font-weight:400}
+
+/* Best composition for each map in the competitive rotation. */
+.rotation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.rotation-card{overflow:hidden;min-width:0;display:flex;flex-direction:column}
+.rotation-header{display:flex;justify-content:space-between;align-items:center;gap:16px;background:var(--navy,#172332);color:#fff;padding:24px}
+.rotation-header .eyebrow{color:#ef9995}.rotation-header h2{margin:6px 0 0;font-size:28px}.rotation-score{font-size:30px;font-weight:700;text-align:right}.rotation-score small{display:block;font-size:10px;letter-spacing:1px;color:#bcc7d3}
+.rotation-players{padding:8px 24px}.rotation-player{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #e9e7e4}.rotation-player>div:nth-child(2){flex:1;min-width:0}.rotation-player strong,.rotation-player span{display:block;overflow-wrap:anywhere}.rotation-player span{font-size:12px;color:#647080;margin-top:3px}.rotation-player .rotation-tier{font-weight:700;color:#283a4e}
+.rotation-comfort{padding:14px 24px;display:flex;justify-content:space-between;font-size:13px}.rotation-card .professional-evidence{margin:0 24px 18px}.rotation-card .model-warning{margin:0 24px 16px}.rotation-actions{display:flex;flex-wrap:wrap;gap:8px;padding:0 24px 24px;margin-top:auto}
+@media(max-width:850px){.rotation-grid{grid-template-columns:1fr}}
