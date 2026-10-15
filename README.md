@@ -41,10 +41,10 @@ The exact dynamic-programming search considers every available agent once and as
 
 The score averages the five assigned players' agent scores. At the default setting:
 
-- 70% player comfort (0–4 mapped to 0–100)
-- 15% editorial map suitability (unreviewed agent/map pairs default to 60)
-- 6% editorial patch adjustment (neutral 50, with bounded adjustments)
-- 9% agent appearance frequency in the selected map's professional sample
+- 50% player comfort (0–4 mapped to 0–100)
+- 25% editorial map suitability (unreviewed agent/map pairs default to 60)
+- 10% editorial patch adjustment (neutral 50, with bounded adjustments)
+- 15% agent appearance frequency in the selected map's professional sample
 
 The comfort slider rescales the remaining weights in a 50:20:30 ratio. Empty professional datasets contribute zero evidence. Scores express model fit, **not** win probability or a claim of universally optimal play. Unrated assignments, missing evidence, pre-patch samples, unknown map suitability, and out-of-rotation maps produce explicit notices. Role coverage is a coarse model; ability combinations, lineups, opponent strategy and scrim results remain coaching inputs.
 

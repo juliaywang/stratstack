@@ -25,7 +25,7 @@ export function compositionEvidence(picks,records,map){
  const dates=observed.map(r=>r.date).filter(Boolean).sort();
  return {exactSamples:count(exact),mapSamples:count(observed),exactRate:count(observed)?Math.round(count(exact)/count(observed)*100):0,exactSources:exact.slice(0,5).map(source),similarSources:similar.slice(0,5).map(source),from:dates[0]||null,through:dates.at(-1)||null};
 }
-export function recommend(players, records, map, weight=70, options={}) {
+export function recommend(players, records, map, weight=50, options={}) {
  if(players.length!==5 || new Set(players.map(p=>p.id)).size!==5) throw new Error('Select exactly five different players.');
  if(!maps.includes(map)||!Number.isFinite(weight)||weight<0||weight>100) throw new Error('Invalid composition settings.');
  const roles=['Duelist','Initiator','Controller','Sentinel'];
