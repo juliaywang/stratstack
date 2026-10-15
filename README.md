@@ -42,11 +42,12 @@ The exact dynamic-programming search considers every available agent once and as
 The score averages the five assigned players' agent scores. At the default setting:
 
 - 50% player comfort (0–4 mapped to 0–100)
-- 25% editorial map suitability (unreviewed agent/map pairs default to 60)
-- 10% editorial patch adjustment (neutral 50, with bounded adjustments)
-- 15% agent appearance frequency in the selected map's professional sample
+- 35% map-specific MetaBot ranked agent performance (sample-adjusted win-rate score)
+- 5% editorial map suitability (unreviewed agent/map pairs default to 60)
+- 5% editorial patch adjustment (neutral 50, with bounded adjustments)
+- 5% agent appearance frequency in the selected map's professional sample
 
-The comfort slider rescales the remaining weights in a 50:20:30 ratio. Empty professional datasets contribute zero evidence. Scores express model fit, **not** win probability or a claim of universally optimal play. Unrated assignments, missing evidence, pre-patch samples, unknown map suitability, and out-of-rotation maps produce explicit notices. Role coverage is a coarse model; ability combinations, lineups, opponent strategy and scrim results remain coaching inputs.
+The comfort slider rescales the remaining weights in a 70:10:10:10 ratio (ranked agents/map/patch/pro popularity). Empty professional datasets contribute zero evidence. Scores express model fit, **not** win probability or a claim of universally optimal play. Unrated assignments, missing evidence, pre-patch samples, unknown map suitability, and out-of-rotation maps produce explicit notices. Role coverage is a coarse model; ability combinations, lineups, opponent strategy and scrim results remain coaching inputs.
 
 `game-data.mjs` contains the manually reviewed **13.08** snapshot (October 13, 2026), official Riot source links, 29 agents including Miks and Veto, recent balance notes and known rotation changes. It does not claim that every map's rotation status is verified. The numerical effects of buffs/nerfs are editorial estimates. Captains may override them for their team; no automatic patch ingestion or schedule is enabled.
 
@@ -80,3 +81,11 @@ The **Meta sources** screen imports a reviewed subset of MetaBot.GG ranked stati
 Published agent sets are assigned to the selected five players and sorted by the existing team-fit model, respecting all filters and exclusions. Exact source matches also appear alongside generated lineup evidence. Global ranked statistics are explicitly not map-specific evidence. The accessible vstats and THESPIKE pages returned no composition rows; Strats.gg is linked as a strategy resource. These sites are not claimed as imported feeds.
 
 To refresh, obtain reviewed text exports of the source pages, then run `python3 scripts/import-meta-sources.py --metabot-text /path/to/metabot.txt --valohub-text /path/to/valohub.txt --checked YYYY-MM-DD --output meta-data.mjs`. Review provider scope, update dates and methodology before committing; the ValoHub metadata must be revised if the source changes its patch or methodology. The importer refuses empty provider results and inconsistent ranked counts, retaining the previous snapshot on failure.
+
+### Ranked agents drive the optimizer
+
+`ranked-agent-data.mjs` contains 347 MetaBot map-agent rows across 12 maps, including every current rotation map, checked October 15, 2026. Rows retain the reported win rate, pick rate, sample size, source update and URL. Icebox was unavailable; Corrode lacks Miks. Missing rows use neutral 50, never inferred results. The public pages cover competitive play across all ranks, regions and platforms; their patch is unspecified.
+
+The ranked score is `clamp(50 + 5 × (winRate − 50) × matches / (matches + 500), 0, 100)`. This is a documented heuristic with a 500-match neutral prior, not a win-probability prediction. Pick rates are shown as context, not used to double-weight popularity. Default overall weights are comfort 50 / ranked agents 35 / editorial map 5 / patch 5 / VLR popularity 5. Source composition snapshots remain separate and do not force exact matches. ValoHub's older editorial estimates are not passed off as ranked agent results. vstats/THESPIKE have no imported usable tables, and Strats.gg remains a strategy resource.
+
+Refresh reviewed map-page exports with `python3 scripts/import-agent-stats.py --input-dir /path/to/exports --checked YYYY-MM-DD --output ranked-agent-data.mjs` (files named `agents-Lotus.txt`, etc.). The importer reads only the overall table, excludes unknown IDs and attack/defense tables, and rejects incomplete or duplicate data. Inspect missing agents before committing. This remains a manual snapshot. Lineup details and Meta sources expose the inputs, and browser/server optimization use the same snapshot.
