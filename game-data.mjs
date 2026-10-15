@@ -1,9 +1,14 @@
 // Versioned editorial inputs. Patch facts are sourced; numerical weights are heuristics.
+export const competitiveRotation = {
+ maps:['Abyss','Bind','Corrode','Haven','Lotus','Summit','Sunset'],
+ patch:'13.08', verifiedAt:'2026-10-15',
+ source:'https://www.dotesports.com/valorant/news/valorants-competitive-map-pool-rotation-explained'
+};
 export const patch = {
  id:'13.08', verifiedAt:'2026-10-13',
  source:'https://playvalorant.com/en-us/news/game-updates/valorant-patch-notes-13-08/',
  summary:'Bind and Corrode enter the competitive pool; Ascent and Split leave. Corrode rotation routes, mid cover and the A plant zone changed.',
- poolStatus:{Bind:'In rotation',Corrode:'In rotation',Abyss:'In rotation',Ascent:'Out of rotation',Split:'Out of rotation',Breeze:'Out of rotation'},
+ poolStatus:Object.fromEntries([...competitiveRotation.maps.map(m=>[m,'In rotation']),...['Ascent','Split','Breeze','Icebox','Fracture','Pearl'].map(m=>[m,'Out of rotation'])]),
  changes:[
   {agent:'Iso',delta:5,patch:'13.01',note:'Faster weapon equip after Double Tap.',source:'https://playvalorant.com/en-us/news/game-updates/valorant-patch-notes-13-01/'},
   {agent:'Yoru',delta:5,patch:'13.01',note:'Gatecrash beacon duration increased.',source:'https://playvalorant.com/en-us/news/game-updates/valorant-patch-notes-13-01/'},
