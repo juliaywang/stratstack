@@ -1,6 +1,10 @@
+import {valkingSnapshot} from './valking-agent-data.mjs';
 import {rankedAgentSnapshot} from './ranked-agent-data.mjs';
 import {patch,mapFits} from './game-data.mjs';
 export const agents = {Jett:'Duelist',Raze:'Duelist',Neon:'Duelist',Reyna:'Duelist',Phoenix:'Duelist',Yoru:'Duelist',Iso:'Duelist',Waylay:'Duelist',Sova:'Initiator',Breach:'Initiator',Skye:'Initiator',Fade:'Initiator',Gekko:'Initiator','KAY/O':'Initiator',Tejo:'Initiator',Omen:'Controller',Viper:'Controller',Brimstone:'Controller',Astra:'Controller',Harbor:'Controller',Clove:'Controller',Killjoy:'Sentinel',Cypher:'Sentinel',Sage:'Sentinel',Chamber:'Sentinel',Deadlock:'Sentinel',Vyse:'Sentinel',Veto:'Sentinel',Miks:'Controller'};
+export const entryAgents = ['Jett','Raze','Neon','Waylay'];
+// All-map Platinum+ signal; no sample count is published, so use a conservative slope.
+export const globalAgentScore = agent => Math.max(0,Math.min(100,50+2.5*((valkingSnapshot.agents[agent]?.winRate??50)-50)));
 export const maps = ['Ascent','Haven','Bind','Lotus','Sunset','Split','Icebox','Breeze','Pearl','Fracture','Abyss','Corrode','Summit'];
 export const examples = [
  {map:'Ascent',team:'Example · default control',agents:['Jett','Sova','KAY/O','Omen','Killjoy'],sample:1,example:true},
@@ -57,26 +61,26 @@ export function recommend(players, records, map, weight=50, options={}) {
   if(list.length>3)list.pop();table.set(key,list);
  };
  for(const agent of candidates){
-  const role=1<<roles.indexOf(agents[agent]);
+  const role=(1<<roles.indexOf(agents[agent]))|(entryAgents.includes(agent)?16:0);
   const mapFit=mapFits[map]?.[agent]??60;
-  const rankedRow=rankedAgentSnapshot.maps[map]?.agents[agent],rankedFit=rankedAgentScore(rankedRow);
+  const rankedRow=rankedAgentSnapshot.maps[map]?.agents[agent],rankedFit=rankedAgentScore(rankedRow),globalFit=globalAgentScore(agent);
   const adjustment=Object.hasOwn(overrides,agent)?overrides[agent]:(changes[agent]||0);
   if(!Number.isFinite(adjustment)||adjustment < -50||adjustment > 50)throw new Error('Patch adjustments must be between -50 and 50.');
   const patchFit=50+adjustment,evidence=total?(frequency[agent]||0)/total*100:0;
   const next=new Map([...dp].map(([k,v])=>[k,[...v]]));
-  for(const [key,paths] of dp){const used=key>>4,roleMask=key&15;
+  for(const [key,paths] of dp){const used=key>>5,roleMask=key&31;
    for(let i=0;i<5;i++){if(used&(1<<i))continue;
     const tier=players[i].tiers?.[agent]??0;
     if(!Number.isInteger(tier)||tier<0||tier>4)throw new Error('Invalid player rating.');
     if(options.ratedOnly&&tier===0)continue;
-    const value=tier/4*weight+(rankedFit*.7+mapFit*.1+patchFit*.1+evidence*.1)*(100-weight)/100;
-    for(const path of paths){const assignment=[...path.assignment,{player:players[i].name,playerId:players[i].id,agent,tier,mapFit,patchFit,evidence,rankedFit,rankedStats:rankedRow||null}];
-     insert(next,((used|(1<<i))<<4)|(roleMask|role),{value:path.value+value,assignment,key:assignment.map(a=>a.agent).sort().join('|')});
+    const value=tier/4*weight+(rankedFit*.6+globalFit*.1+mapFit*.1+patchFit*.1+evidence*.1)*(100-weight)/100;
+    for(const path of paths){const assignment=[...path.assignment,{player:players[i].name,playerId:players[i].id,agent,tier,mapFit,patchFit,evidence,rankedFit,globalFit,rankedStats:rankedRow||null}];
+     insert(next,((used|(1<<i))<<5)|(roleMask|role),{value:path.value+value,assignment,key:assignment.map(a=>a.agent).sort().join('|')});
     }
    }
   }dp=next;
  }
- const complete=options.requireRoles===false?[...dp].filter(([k])=>(k>>4)===31).flatMap(([,v])=>v):dp.get((31<<4)|15)||[];
+ const complete=dp.get((31<<5)|31)||[];
  const unique=new Map();for(const p of complete.sort((a,b)=>b.value-a.value)){if(!unique.has(p.key))unique.set(p.key,p);}
  return [...unique.values()].slice(0,3).map(p=>{
   const assignment=p.assignment.sort((a,b)=>players.findIndex(x=>x.id===a.playerId)-players.findIndex(x=>x.id===b.playerId));
@@ -93,6 +97,6 @@ export function recommend(players, records, map, weight=50, options={}) {
   if(map==='Corrode')warnings.push('Corrode changed in 13.08; validate lineups and retake timings in practice.');
   if(professional.through&&Date.parse(patch.verifiedAt)-Date.parse(professional.through)>90*86400000)warnings.push('Historical evidence only: the newest match for this map is over 90 days before this patch.');
   if(observed.some(r=>!r.patch||r.patch!==patch.id))warnings.push('Professional samples may predate this patch.');
-  return {map,team:'Optimized roster composition',agents:assignment.map(a=>a.agent),assignment,comfort:exactComfort,rankedFit:avg('rankedFit'),rankedSource:rankedAgentSnapshot.maps[map]?{source:rankedAgentSnapshot.maps[map].source,updated:rankedAgentSnapshot.maps[map].updated,scope:rankedAgentSnapshot.maps[map].scope,checkedAt:rankedAgentSnapshot.checkedAt}:null,evidence:avg('evidence'),professional,mapFit:avg('mapFit'),patchFit:avg('patchFit'),score:Math.round(p.value/5),sample:total,example:false,generated:true,patch:patch.id,verifiedAt:patch.verifiedAt,source:professional.exactSources[0]?.source||professional.similarSources[0]?.source||null,patchSource:patch.source,date:patch.verifiedAt,warnings,roles:[...new Set(assignment.map(a=>agents[a.agent]))],weights:{comfort:weight,ranked:(100-weight)*.7,map:(100-weight)*.1,patch:(100-weight)*.1,evidence:(100-weight)*.1}};
+  return {map,team:'Optimized roster composition',agents:assignment.map(a=>a.agent),assignment,comfort:exactComfort,rankedFit:avg('rankedFit'),globalFit:avg('globalFit'),entryAgents:assignment.filter(a=>entryAgents.includes(a.agent)).map(a=>a.agent),rankedSource:rankedAgentSnapshot.maps[map]?{source:rankedAgentSnapshot.maps[map].source,updated:rankedAgentSnapshot.maps[map].updated,scope:rankedAgentSnapshot.maps[map].scope,checkedAt:rankedAgentSnapshot.checkedAt}:null,evidence:avg('evidence'),professional,mapFit:avg('mapFit'),patchFit:avg('patchFit'),score:Math.round(p.value/5),sample:total,example:false,generated:true,patch:patch.id,verifiedAt:patch.verifiedAt,source:professional.exactSources[0]?.source||professional.similarSources[0]?.source||null,patchSource:patch.source,date:patch.verifiedAt,warnings,roles:[...new Set(assignment.map(a=>agents[a.agent]))],weights:{comfort:weight,ranked:(100-weight)*.6,global:(100-weight)*.1,map:(100-weight)*.1,patch:(100-weight)*.1,evidence:(100-weight)*.1}};
  });
 }

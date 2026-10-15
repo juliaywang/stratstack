@@ -7,4 +7,5 @@ cpSync(new URL('engine.mjs',root),new URL('engine.js',dist));
 cpSync(new URL('game-data.mjs',root),new URL('game-data.mjs',dist));
 cpSync(new URL('meta-data.mjs',root),new URL('meta-data.mjs',dist));
 cpSync(new URL('ranked-agent-data.mjs',root),new URL('ranked-agent-data.mjs',dist));
+cpSync(new URL('valking-agent-data.mjs',root),new URL('valking-agent-data.mjs',dist));
 console.log('Built static frontend in dist/');
