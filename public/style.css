@@ -246,3 +246,13 @@ h1,h2,h3,p{margin:0}button,input,select,textarea{font:inherit}button{cursor:poin
 .patch-rule input[type=number]{width:100%;margin-top:5px}
 .patch-changes{margin-top:20px;line-height:1.7;font-size:13px}
 .new-agent{display:grid!important;place-items:center;width:100%;height:100%;min-height:40px;background:#26364e;color:#f2a09b;font-weight:700;letter-spacing:2px}
+.professional-evidence{padding:16px 0;border-top:1px solid #e9e6e3;margin-top:14px;font-size:12px;line-height:1.6}
+.professional-evidence>strong{font-size:14px;display:block;margin:5px 0}
+.professional-evidence p,.professional-evidence small{color:#686b72}
+.evidence-links{display:grid;gap:8px;margin:12px 0}
+.evidence-links a{display:grid;gap:2px;padding:10px 12px;background:#f5f4f2;border-left:2px solid #ff4655;text-decoration:none;color:#282d35}
+.evidence-links a:hover{background:#ffeded}
+.evidence-links span{font-size:11px;color:#676b73}
+.coverage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin:16px 0 24px}
+.coverage-grid button{display:grid;gap:8px;text-align:left;padding:12px}
+.coverage-grid strong{font-size:23px}.coverage-grid small{font-size:10px;font-weight:400}

@@ -50,7 +50,18 @@ The comfort slider rescales the remaining weights in a 50:20:30 ratio. Empty pro
 
 `game-data.mjs` contains the manually reviewed **13.08** snapshot (October 13, 2026), official Riot source links, 29 agents including Miks and Veto, recent balance notes and known rotation changes. It does not claim that every map's rotation status is verified. The numerical effects of buffs/nerfs are editorial estimates. Captains may override them for their team; no automatic patch ingestion or schedule is enabled.
 
-`pro-data.json` retains the source-linked October 8–12, 2026 VLR snapshot (28 team-map observations). This is a limited, pre-13.08 sample. The Pro data screen supports imports with map, team, five unique agents, positive sample count, date, source URL, and optional `patch`. `scripts/refresh-pro-data.py` can refresh the snapshot manually. Review patch facts, agents, map scores and professional data before later-patch play.
+`pro-data.json` contains 2,294 source-linked team/map observations across all 13 supported maps. The bounded VLR sample covers different competitive events and dates (May 2025–October 2026), not a complete or uniformly recent professional dataset. Icebox and Corrode currently have particularly small historical samples. The builder’s **Only compositions observed in matches** option restricts recommendations to recorded five-agent sets, optimized for your players under the same constraints. Every composition displays exact five-agent observations separately from related lineups; individual agent popularity remains a distinct score input. Links go to the original VLR match and map panel, with team, event and date. Historical coverage is flagged. Pro data shows per-map sample counts and a map filter.
+
+The scraper now splits numeric map panels and the interleaved aggregate panel separately, preventing the aggregate agent list from silently discarding the first map. It preserves previous records, deduplicates by VLR match ID/map/team, tolerates individual request failures, and atomically replaces the snapshot only after obtaining valid records. It uses three workers and bounded pagination. Run a normal refresh or target historical windows and verified matches:
+
+```sh
+python scripts/refresh-pro-data.py --pages 4 --max-matches 150
+python scripts/refresh-pro-data.py --start-page 12 --pages 3 --max-matches 150
+python scripts/refresh-pro-data.py --match-url https://www.vlr.gg/626547/all-gamers-vs-tbd-valorant-masters-santiago-2026-lr2
+python -m unittest discover -s test -p 'test_*.py'
+```
+
+Refresh remains manual; deploy the refreshed snapshot to update the hosted dataset. Team imports support map, team, five unique agents, positive sample count, date, source URL, and optional patch. Duplicate source/team/map records do not increase optimizer evidence. New saved lineups preserve their evidence snapshot; older saves show evidence from the current dataset. Review patch facts and map scores before later-patch play.
 
 ## Vercel
 

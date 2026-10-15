@@ -15,7 +15,7 @@ export function validateSettings(v={}){
  const excluded=v.excluded||[],adjustments=v.adjustments||{};
  if(!Array.isArray(excluded)||excluded.some(a=>!Object.hasOwn(agents,a)))fail('Unknown excluded agent.');
  if(typeof adjustments!=='object'||Array.isArray(adjustments)||Object.entries(adjustments).some(([a,n])=>!Object.hasOwn(agents,a)||!Number.isInteger(n)||n < -50||n>50))fail('Patch adjustments must be integers between -50 and 50.');
- return {excluded:[...new Set(excluded)],adjustments,ratedOnly:v.ratedOnly===true,requireRoles:v.requireRoles!==false};
+ return {excluded:[...new Set(excluded)],adjustments,ratedOnly:v.ratedOnly===true,observedOnly:v.observedOnly===true,requireRoles:v.requireRoles!==false};
 }
 function cookies(res,session){
  const secure=process.env.NODE_ENV==='production'||process.env.VERCEL?'; Secure':'';
@@ -109,7 +109,7 @@ export async function supabaseHandler(req,res,url,b,send,snapshot){
   if(!Array.isArray(b.players)||b.players.length!==5||new Set(b.players).size!==5||!maps.includes(b.map)||!Number.isInteger(b.weight)||b.weight<0||b.weight>100)fail('Select five different players and valid builder settings.');
   const members=(await rest('ss_roster','GET',undefined,'?team_id=eq.'+teamId)).filter(m=>b.players.includes(m.id));
   const imported=await rest('ss_observations','GET',undefined,'?team_id=eq.'+teamId);
-  const options=validateSettings({...team.settings,ratedOnly:b.ratedOnly??team.settings.ratedOnly});
+  const options=validateSettings({...team.settings,ratedOnly:b.ratedOnly??team.settings.ratedOnly,observedOnly:b.observedOnly??team.settings.observedOnly});
   const results=recommend(members,[...snapshot,...imported.map(r=>r.body)],b.map,b.weight,options);
   if(!results.length)fail('No valid composition. Rate more agents or relax the exclusions.');
   const entry={id:randomUUID(),map:b.map,date:new Date().toISOString(),result:results[0],settings:options};
