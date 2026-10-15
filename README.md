@@ -72,3 +72,11 @@ The checked-in publishable project configuration enables Supabase mode without a
 ## Verification
 
 `npm test` covers legacy adapters, the new Supabase API contract using a simulated service, login confirmation, refresh rotation, captain checks, personal rankings, saved lineups, exclusions, patch effects, and optimizer correctness against an independent exhaustive search. Browser QA exercises the actual UI with a simulated authenticated API. Live Supabase RLS was verified separately. Full email delivery and live Auth HTTP calls could not be exercised from the authoring workspace because its network policy blocks the project's `supabase.co` endpoint.
+
+### Additional meta sources
+
+The **Meta sources** screen imports a reviewed subset of MetaBot.GG ranked statistics (31 compositions, all ranks/regions, map and patch unspecified) and ValoHub editorial recommendations (36 map-specific compositions, reviewed for patch 12.10 on May 28, 2026). The snapshot was checked October 15, 2026. It is not a live feed. Source counts and dates remain visible; ValoHub percentages are labeled estimates. Neither dataset is pooled into VLR professional observations or the optimizer's agent-popularity term.
+
+Published agent sets are assigned to the selected five players and sorted by the existing team-fit model, respecting all filters and exclusions. Exact source matches also appear alongside generated lineup evidence. Global ranked statistics are explicitly not map-specific evidence. The accessible vstats and THESPIKE pages returned no composition rows; Strats.gg is linked as a strategy resource. These sites are not claimed as imported feeds.
+
+To refresh, obtain reviewed text exports of the source pages, then run `python3 scripts/import-meta-sources.py --metabot-text /path/to/metabot.txt --valohub-text /path/to/valohub.txt --checked YYYY-MM-DD --output meta-data.mjs`. Review provider scope, update dates and methodology before committing; the ValoHub metadata must be revised if the source changes its patch or methodology. The importer refuses empty provider results and inconsistent ranked counts, retaining the previous snapshot on failure.
